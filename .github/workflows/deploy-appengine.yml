@@ -65,8 +65,8 @@ jobs:
     - name: npm ci
       run: npm ci
 
-    - name: npm run test
-      run: npm run test
+    #- name: npm run test
+    #  run: npm run test
 
     - name: npm build
       run: npm run build
@@ -77,7 +77,7 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT }}
         credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
         #deliverables: app.yml
-        
+
     - name: show url
       run: gcloud app describe
 
