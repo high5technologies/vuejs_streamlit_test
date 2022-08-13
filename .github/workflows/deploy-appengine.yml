@@ -1,0 +1,85 @@
+#################################
+# Trigger = github action
+# executeion happens on the github side
+# backend = terraform cloud (TF Cloud is state file only - no config or additional needed)
+# TF Cloud Workspace - single workspace per state file - means every sport/env combo requires a new workspace
+#################################
+name: 'VueJS Web App GCP AppEngine Deployment'
+
+on:
+  push:
+    #paths:
+    #- 'basketball-nba/**'                     #config-here
+    branches:
+    - main
+    - dev
+  #pull_request:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+#env:
+#  sport: basketball-nba                      #config-here
+
+##################################################################################################
+# No changes below here
+##################################################################################################
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  set_env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Some check on branch
+        id: branch_check
+        run: |
+          echo "Running on branch ${{ github.ref }}"
+          echo "::set-output name=env_name::${GITHUB_REF#refs/heads/}"
+         
+      #- name: Use variable setup in previous step
+      #  run: echo "I'm using variable ${{ steps.branch_check.outputs.env_name }}"
+  
+    outputs:
+      env_name: ${{ steps.branch_check.outputs.env_name }} # job output ... consumed by next job
+
+  deploy:
+    needs: [set_env] #orchestrates set_env job to run before terraform_deployment
+    name: Deploying to Google Cloud
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: ${{ needs.set_env.outputs.env_name }}
+
+    #defaults:
+    #  run:
+    #    working-directory: ./server
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+    - name: npm ci
+      run: npm ci
+
+    - name: npm run test
+      run: npm run test
+
+    - name: npm build
+      run: npm run build
+
+    - id: Deploy
+      uses: google-github-actions/deploy-appengine@main
+      with:
+        project_id: ${{ secrets.GCP_PROJECT }}
+        credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+        #deliverables: app.yml
+        
+    - name: show url
+      run: gcloud app describe
+
+    #- name: 'show output'
+    #  run: 'echo ${{ steps.deploy.outputs.url }}'
