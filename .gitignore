@@ -111,4 +111,4 @@ dist
 /dist/
 .env-sample
 babel.config.js
-package-lock.json
+#package-lock.json
