@@ -76,7 +76,7 @@ jobs:
       with:
         project_id: ${{ secrets.GCP_PROJECT }}
         credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
-        #deliverables: app.yml
+        deliverables: app.yml
 
     - name: show url
       run: gcloud app describe
