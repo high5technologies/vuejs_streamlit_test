@@ -10,12 +10,18 @@ import Signin from "../views/Signin.vue";
 
 import Test1 from "../views/Test1.vue";
 import Test2 from "../views/Test2.vue";
+import NBA_ML_RESULTS from "../views/nba_ml_results.vue";
 
 const routes = [
   {
     path: "/",
     name: "/",
     redirect: "/dashboard-default",
+  },
+  {
+    path: "/nba-ml-results",
+    name: "NBA ML Results",
+    component: NBA_ML_RESULTS,
   },
   {
     path: "/test1",
